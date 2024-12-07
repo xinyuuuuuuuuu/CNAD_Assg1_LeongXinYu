@@ -27,7 +27,7 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-// User sign up for an account
+// User sign up for an account - POST
 func Signup(db *sql.DB) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -49,9 +49,18 @@ func Signup(db *sql.DB) {
 	user.Name = strings.TrimSpace(user.Name)
 
 	// Email
-	fmt.Print("Email: ")
-	user.Email, _ = reader.ReadString('\n')
-	user.Email = strings.TrimSpace(user.Email)
+	for {
+		fmt.Print("Email: ")
+		user.Email, _ = reader.ReadString('\n')
+		user.Email = strings.TrimSpace(user.Email)
+		// if email input contains "@"
+		if strings.Contains(user.Email, "@") {
+			break;
+		} 
+
+		fmt.Println("Invalid email format. Please try again.")
+	}
+
 
 	// Password
 	fmt.Print("Password: ")
@@ -114,7 +123,7 @@ func Signup(db *sql.DB) {
 
 }
 
-// User login to their account
+// User login to their account - POST
 func Login(db *sql.DB) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -160,3 +169,28 @@ func Login(db *sql.DB) {
 	fmt.Println("Login successful")
 
 }
+
+// User update their account details - PUT
+// func UpdateUserDetails(db * sql.DB) {
+// 	reader := bufio.NewReader(os.Stdin)
+
+// 	var editUser model.UserService
+
+// 	// Prompt for Contact
+// 	fmt.Print("Email: ")
+// 	userLog.Email, _ = reader.ReadString('\n')
+// 	userLog.Email = strings.TrimSpace(userLog.Email)
+
+// 	// Prompt for Password
+// 	fmt.Print("Password: ")
+// 	userLog.Password, _ = reader.ReadString('\n')
+// 	userLog.Password = strings.TrimSpace(userLog.Password)
+
+// 	// query to fetch for hashed password according to given email
+// 	query := `
+// 	SELECT Password FROM UserService
+// 	WHERE Email = ? 
+// 	`
+	// contact
+	// address
+//}
