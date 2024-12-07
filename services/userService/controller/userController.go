@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 	"cnad_assg1_leongxinyu/services/userService/model"
-	"cnad_assg1_leongxinyu/services/user-service/utility"
+	"cnad_assg1_leongxinyu/services/userService/utility"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 
@@ -26,6 +26,7 @@ func CheckPasswordHash(password, hash string) bool {
 func Signup (db *sql.DB) {
 	var user model.UserService
 	var userId string
+	var err error
 
 	// userid 
 	userId, err = utility.GenerateUserId(db)
