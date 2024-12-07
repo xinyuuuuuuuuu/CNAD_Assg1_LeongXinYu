@@ -27,6 +27,7 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
+// User sign up for an account
 func Signup(db *sql.DB) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -68,7 +69,7 @@ func Signup(db *sql.DB) {
 
 	// ContactNo
 	fmt.Print("Contact Number: ")
-	user.ContactNo, err = reader.ReadString('\n')
+	user.ContactNo, _ = reader.ReadString('\n')
 	user.ContactNo = strings.TrimSpace(user.ContactNo)
 
 	// Dob
@@ -87,7 +88,7 @@ func Signup(db *sql.DB) {
 
 	// Address
 	fmt.Print("Address: ")
-	user.Address, err = reader.ReadString('\n')
+	user.Address, _ = reader.ReadString('\n')
 	user.Address = strings.TrimSpace(user.Address)
 
 	// CreatedDateTime
@@ -110,5 +111,52 @@ func Signup(db *sql.DB) {
 		panic(err.Error())
 	}
 	fmt.Println("Number of rows affected: ", rows)
+
+}
+
+// User login to their account
+func Login(db *sql.DB) {
+	reader := bufio.NewReader(os.Stdin)
+
+	var userLog model.UserService
+
+	// Prompt for Email
+	fmt.Print("Email: ")
+	userLog.Email, _ = reader.ReadString('\n')
+	userLog.Email = strings.TrimSpace(userLog.Email)
+
+	// Prompt for Password
+	fmt.Print("Password: ")
+	userLog.Password, _ = reader.ReadString('\n')
+	userLog.Password = strings.TrimSpace(userLog.Password)
+
+	// query to fetch for hashed password according to given email
+	query := `
+	SELECT Password FROM UserService
+	WHERE Email = ? 
+	`
+
+	// var that holds the hashed pw retrieved from the db
+	var storedHash string
+
+	// execute the query to look for hashed pw n store it in storedHash
+	err := db.QueryRow(query, userLog.Email).Scan(&storedHash)
+	if err != nil {
+		// when no matching row is found
+		if err == sql.ErrNoRows{
+			fmt.Println("Invalid email or password.")
+			return
+		}
+		fmt.Println("Error trying to query database ", err)
+		return
+	}
+	
+	// check if pw matches the one in the db
+	if !CheckPasswordHash(userLog.Password, storedHash){
+		fmt.Println("Invalid email or password")
+	}
+
+	// successful login
+	fmt.Println("Login successful")
 
 }

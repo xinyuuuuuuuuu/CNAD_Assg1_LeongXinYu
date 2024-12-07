@@ -17,5 +17,6 @@ func main() {
 	
 	// database operation
 	controller.Signup(db)
+	controller.Login(db)
 	defer db.Close() 
 }
