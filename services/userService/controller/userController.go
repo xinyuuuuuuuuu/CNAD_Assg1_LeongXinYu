@@ -124,7 +124,7 @@ func Signup(db *sql.DB) {
 }
 
 // User login to their account - POST
-func Login(db *sql.DB) {
+func Login(db *sql.DB) string {
 	reader := bufio.NewReader(os.Stdin)
 
 	var userLog model.UserService
@@ -141,56 +141,159 @@ func Login(db *sql.DB) {
 
 	// query to fetch for hashed password according to given email
 	query := `
-	SELECT Password FROM UserService
+	SELECT UserId, Password FROM UserService
 	WHERE Email = ? 
 	`
 
 	// var that holds the hashed pw retrieved from the db
-	var storedHash string
+	var userId, storedHash string
 
 	// execute the query to look for hashed pw n store it in storedHash
-	err := db.QueryRow(query, userLog.Email).Scan(&storedHash)
+	err := db.QueryRow(query, userLog.Email).Scan(&userId, &storedHash)
 	if err != nil {
 		// when no matching row is found
 		if err == sql.ErrNoRows{
 			fmt.Println("Invalid email or password.")
-			return
+			return "" // return empty string for failed login
 		}
 		fmt.Println("Error trying to query database ", err)
-		return
+		return "" // return empty string for failed database query
 	}
 	
 	// check if pw matches the one in the db
 	if !CheckPasswordHash(userLog.Password, storedHash){
 		fmt.Println("Invalid email or password")
+		return "" // return empty string if pw doesnt match
 	}
 
 	// successful login
 	fmt.Println("Login successful")
+	return userId
 
 }
 
 // User update their account details - PUT
-// func UpdateUserDetails(db * sql.DB) {
-// 	reader := bufio.NewReader(os.Stdin)
+func UpdateUserDetails(db * sql.DB, userId string) {
+	reader := bufio.NewReader(os.Stdin)
 
-// 	var editUser model.UserService
+	// retrieve current details for user
+	query := `
+	SELECT Name, Email, ContactNo, Address
+	FROM UserService
+	WHERE UserId = ?
+	`
 
-// 	// Prompt for Contact
-// 	fmt.Print("Email: ")
-// 	userLog.Email, _ = reader.ReadString('\n')
-// 	userLog.Email = strings.TrimSpace(userLog.Email)
+	// current user details
+	var currentName, currentEmail, currentContactNo, currentAddress string
 
-// 	// Prompt for Password
-// 	fmt.Print("Password: ")
-// 	userLog.Password, _ = reader.ReadString('\n')
-// 	userLog.Password = strings.TrimSpace(userLog.Password)
+	// execute the query to look for current user details
+	err := db.QueryRow(query, userId).Scan(&currentName, &currentEmail, &currentContactNo, &currentAddress)
+	if err != nil {
+		// when no matching row is found
+		if err == sql.ErrNoRows{
+			fmt.Println("User not found")
+			return
+		}
+		fmt.Println("Error fetching user details ", err)
+		return
+	}
 
-// 	// query to fetch for hashed password according to given email
-// 	query := `
-// 	SELECT Password FROM UserService
-// 	WHERE Email = ? 
-// 	`
-	// contact
-	// address
-//}
+	fmt.Println("Update Your Details (Press enter to skip)")
+
+	// prompt for Name
+	fmt.Printf("Name [%s]: ", currentName)
+	newName, _ := reader.ReadString('\n')
+	newName = strings.TrimSpace(newName)
+
+	// no input - keep current value
+	if newName == "" {
+		newName = currentName
+	}
+
+	// prompt for Email
+	var newEmail string
+	for {
+		fmt.Printf("Email [%s]: ", currentEmail)
+		newEmail, _ = reader.ReadString('\n')
+		newEmail = strings.TrimSpace(newEmail)
+
+		// no input - keep current value
+		if newEmail == "" {
+			newEmail = currentEmail
+			break
+		}
+
+		// if new email input does not contain "@"
+		if strings.Contains(newEmail, "@") {
+			newEmail = newEmail
+			break
+		} 
+		fmt.Println("Invalid email format. Please try again.")
+
+		// check if email is in use
+		emailCheckQuery := `
+		SELECT COUNT(*)
+		FROM UserService
+		WHERE Email = ? AND UserId = ? 
+		`
+
+		// email count - no.of same emails
+		var emailCount int
+
+		// execute the query to look for the number of same emails n store it in emailCount
+		err := db.QueryRow(emailCheckQuery, newEmail, userId).Scan(&emailCount)
+		if err != nil {
+			fmt.Println("Error checking email: ", err)
+			return
+		}
+
+		// more than one same email
+		if emailCount > 0 {
+			fmt.Println("Email is already in use. Please try another email.")
+			continue
+		}
+
+		// no other same email
+		break
+
+	}
+
+	// prompt for ContactNo
+	fmt.Printf("Contact Number [%s]: ", currentContactNo)
+	newContactNo, _ := reader.ReadString('\n')
+	newContactNo = strings.TrimSpace(newContactNo)
+
+	// no input - keep current value
+	if newContactNo == "" {
+		newContactNo = currentContactNo
+	}
+
+	// prompt for Address
+	fmt.Printf("Address [%s]: ", currentAddress)
+	newAddress, _ := reader.ReadString('\n')
+	newAddress = strings.TrimSpace(newAddress)
+
+	// no input - keep current value
+	if newAddress == "" {
+		newAddress = currentAddress
+	}
+
+	// update database 
+	updateQuery := `
+	UPDATE UserService 
+	SET Name = ?, Email = ?, ContactNo = ?, Address = ?
+	WHERE UserId = ?
+	`
+
+	_, err = db.Exec(updateQuery, newName, newEmail, newContactNo, newAddress)
+
+	// error updating user details
+	if err != nil {
+		fmt.Println("Error updating user details ", err)
+		return
+	}
+
+	// successful update
+	fmt.Println("User details updated successfully.")
+
+}
