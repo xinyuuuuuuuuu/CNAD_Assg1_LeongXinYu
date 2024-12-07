@@ -1,7 +1,8 @@
-package userService
+package main
 
 import (
 	"database/sql"
+	"cnad_assg1_leongxinyu/services/userService/controller"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -15,6 +16,6 @@ func main() {
 	} 
 	
 	// database operation
-	Signup(db)
+	controller.Signup(db)
 	defer db.Close() 
 }

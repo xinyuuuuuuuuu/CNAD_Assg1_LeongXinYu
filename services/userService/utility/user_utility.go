@@ -20,7 +20,8 @@ func GenerateUserId(db*sql.DB) (string, error) {
 		// if query selects no row
 		if err == sql.ErrNoRows {
 			fmt.Println("No rows found. Starting with U0001")
-			lastUserId = "U0001"
+			//lastUserId = "U0001"
+			return "U0001", nil
 		}
 
 		return "", err

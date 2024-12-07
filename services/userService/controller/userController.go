@@ -1,34 +1,40 @@
 package controller
 
 import (
-	"fmt"
-	"time"
+	"bufio"
 	"cnad_assg1_leongxinyu/services/userService/model"
 	"cnad_assg1_leongxinyu/services/userService/utility"
 	"database/sql"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 // hash password
-func HashedPassword(password string) (string, error){
+func HashedPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
 // check password
 func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) 
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-func Signup (db *sql.DB) {
+func Signup(db *sql.DB) {
+	reader := bufio.NewReader(os.Stdin)
+
 	var user model.UserService
 	var userId string
 	var err error
 
-	// userid 
+	// userid
 	userId, err = utility.GenerateUserId(db)
 	if err != nil {
 		fmt.Println("Error generating user id: ", err)
@@ -38,39 +44,71 @@ func Signup (db *sql.DB) {
 
 	// Name
 	fmt.Print("Name: ")
-	fmt.Scanln(&user.Name)
+	user.Name, _ = reader.ReadString('\n')
+	user.Name = strings.TrimSpace(user.Name)
 
 	// Email
 	fmt.Print("Email: ")
-	fmt.Scanln(&user.Email)
+	user.Email, _ = reader.ReadString('\n')
+	user.Email = strings.TrimSpace(user.Email)
 
 	// Password
 	fmt.Print("Password: ")
 	var pw string
-	fmt.Scanln(&pw)
+	pw, _ = reader.ReadString('\n')
+	pw = strings.TrimSpace(pw)
 	hash, err := HashedPassword(pw)
 	if err != nil {
 		fmt.Println("Error hashing password ", err)
 	}
 
 	// store hashed password
-	user.Password = hash 
-	fmt.Println("Hash: ", user.Password)
+	user.Password = hash
+	//fmt.Println("Hash: ", user.Password) // checking purpose
 
 	// ContactNo
 	fmt.Print("Contact Number: ")
-	fmt.Scanln(&user.ContactNo)
+	user.ContactNo, err = reader.ReadString('\n')
+	user.ContactNo = strings.TrimSpace(user.ContactNo)
 
 	// Dob
-	fmt.Print("Date of Birth (YYYY-MM-DD): ")
-	fmt.Scanln(&user.Dob)
+	for {
+		fmt.Print("Date of Birth (YYYY-MM-DD): ")
+		dobInput, _ := reader.ReadString('\n') // Read the input as a string
+		dobInput = strings.TrimSpace(dobInput)
+		user.Dob, err = time.Parse("2006-01-02", dobInput)
+		if err != nil {
+			fmt.Println("Date format is invalid. Please use YYYY-MM-DD.")
+			continue // user can input if format was prev invalid
+		}
+		break // break loop when user input valid date
+	}
+
 
 	// Address
 	fmt.Print("Address: ")
-	fmt.Scanln(&user.Address)
+	user.Address, err = reader.ReadString('\n')
+	user.Address = strings.TrimSpace(user.Address)
 
 	// CreatedDateTime
 	user.CreatedDateTime = time.Now()
 
+	// insert data into UserService table
+	query := `
+	INSERT INTO UserService
+	(UserId, Name, Email, Password, ContactNo, Dob, Address, CreatedDateTime)
+	VALUES(?,?,?,?,?,?,?,?)
+	`
+	result, err := db.Exec(query, user.UserId, user.Name, user.Email, user.Password, user.ContactNo, user.Dob, user.Address, user.CreatedDateTime)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Println("Number of rows affected: ", rows)
 
 }
