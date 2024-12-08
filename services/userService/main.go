@@ -77,7 +77,7 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		fmt.Println("5. Make Payment")    // havent do 
 		fmt.Println("6. Reserve Available Vehicles") //must do - (done)
 		fmt.Println("7. View Reservations")       //must do - (done)
-		fmt.Println("8. Update Reservation")      //must do, should update n delete reservation be tgt
+		fmt.Println("8. Update Reservation")      //must do, update n delete reservation aretgt
 		fmt.Println("9. Log Out")                 //(done)
 		fmt.Println("Enter an option: ")
 		fmt.Scanln(&opt)
