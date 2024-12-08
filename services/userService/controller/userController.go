@@ -293,3 +293,49 @@ func UpdateUserDetails(db * sql.DB, userId string) {
 	fmt.Println("User details updated successfully.")
 
 }
+
+// User view their account details
+func ViewAccountDetails(db * sql.DB, userId string) {
+	// query to view reservation details
+	query := `
+	SELECT Name, Email, ContactNo, Dob, Address
+	FROM UserService
+	WHERE UserId = ?
+	`
+	// execute the query
+	results, err := db.Query(query, userId)
+	if err != nil {
+		fmt.Println("Error retrieving user details ", err)
+		return
+	}
+
+	// close the result when the func has ended
+	defer results.Close()
+
+	// header for displaying reservation
+	fmt.Println("Account Details")
+	fmt.Printf("%-25s %-25s %-18s %-25s %-20s\n", "Name", "Email", "Contact Number", "Date Of Birth", "Address")
+	fmt.Println(strings.Repeat("-", 120))
+
+	for results.Next() != false {
+		var n, e, cN, dob, a string
+		//scan to get results of each row
+		err := results.Scan(&n, &e, &cN, &dob, &a)
+
+		// if there is error
+		if err != nil {
+			fmt.Println("There is an error in scanning user data ", err)
+			return
+		}
+
+		// display the result
+		fmt.Printf("%-25s %-25s %-18s %-25s %-20s\n", n, e, cN, dob, a)
+	}
+
+	// checking for any errs aft iteration is done
+	if err = results.Err(); err != nil {
+		fmt.Println("Error iterating over user data ", err)
+		return
+	}
+
+}

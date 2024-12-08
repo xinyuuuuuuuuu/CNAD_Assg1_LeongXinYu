@@ -3,9 +3,9 @@ package main
 import (
 	billingController "cnad_assg1_leongxinyu/services/billingService/controller"
 	membershipController "cnad_assg1_leongxinyu/services/membership/controller"
+	reservationController "cnad_assg1_leongxinyu/services/reservationService/controller"
 	userController "cnad_assg1_leongxinyu/services/userService/controller"
 	vehicleController "cnad_assg1_leongxinyu/services/vehicleService/controller"
-	reservationController "cnad_assg1_leongxinyu/services/reservationService/controller"
 
 	"database/sql"
 	"fmt"
@@ -70,10 +70,10 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		fmt.Println("============")
 		fmt.Println("Welcome!")
 		fmt.Println("Member Console")
-		fmt.Println("1. View User Details") 	// doing
-		fmt.Println("2. Update User Details")     //(done) 
+		fmt.Println("1. View User Details")       // done
+		fmt.Println("2. Update User Details")     //(done)
 		fmt.Println("3. View Membership Details") //(done)
-		fmt.Println("4. View Rental history")     //dk if wan or not - might need to create rentalHistory table
+		fmt.Println("4. ")     
 		fmt.Println("5. View Billing History")    // must do - (done)
 		fmt.Println("6. View Available Vehicles") //must do - (done)
 		fmt.Println("7. View Reservations")       //must do - (done)
@@ -85,7 +85,7 @@ func LoggedInMenu(db *sql.DB, userId string) {
 
 		switch opt {
 		case 1:
-			//userController.UpdateUserDetails(db, userId)
+			userController.ViewAccountDetails(db, userId)
 
 		case 2:
 			userController.UpdateUserDetails(db, userId)
