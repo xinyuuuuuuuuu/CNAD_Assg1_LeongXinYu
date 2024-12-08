@@ -224,17 +224,16 @@ func UpdateUserDetails(db * sql.DB, userId string) {
 		}
 
 		// if new email input does not contain "@"
-		if strings.Contains(newEmail, "@") {
-			newEmail = newEmail
-			break
+		if !strings.Contains(newEmail, "@") {
+			fmt.Println("Invalid email format. Please try again.")
+			continue
 		} 
-		fmt.Println("Invalid email format. Please try again.")
 
-		// check if email is in use
+		// check if email is in use for other users
 		emailCheckQuery := `
 		SELECT COUNT(*)
 		FROM UserService
-		WHERE Email = ? AND UserId = ? 
+		WHERE Email = ? AND UserId != ? 
 		`
 
 		// email count - no.of same emails
@@ -253,7 +252,7 @@ func UpdateUserDetails(db * sql.DB, userId string) {
 			continue
 		}
 
-		// no other same email
+		// email is valid 
 		break
 
 	}
@@ -285,7 +284,7 @@ func UpdateUserDetails(db * sql.DB, userId string) {
 	WHERE UserId = ?
 	`
 
-	_, err = db.Exec(updateQuery, newName, newEmail, newContactNo, newAddress)
+	_, err = db.Exec(updateQuery, newName, newEmail, newContactNo, newAddress, userId)
 
 	// error updating user details
 	if err != nil {
