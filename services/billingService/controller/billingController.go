@@ -10,7 +10,7 @@ import (
 func GetPastBilling(db *sql.DB, userId string) {
 	// retrieve past billing for user
 	query := `
-		SELECT BillingDate, BIllingTotal, PaymentMethod, PaymentStatus
+		SELECT BillingDate, BillingTotal, PaymentMethod, PaymentStatus
 		FROM Billing
 		WHERE UserId = ?
 		`

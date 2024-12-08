@@ -1,7 +1,9 @@
-package controller 
+package controller
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 )
 
 // calculate membershipExpiryDate
@@ -14,11 +16,72 @@ import (
 
 // view membership details
 func ViewMembership(db *sql.DB, userId string) {
-	// 
+	//query to get Membership details
 	query := `
-	SELECT * FROM Membership
-	`
+	SELECT MembershipTier, HourlyRate, MemberDiscount, PriorityLevel, TotalCostPerMonth, MembershipExpiryDate, EligibleForUpgradeNextMonth
+	FROM Membership
+ 	WHERE UserId = ?
+ 	`
 
+	// execute the query to look for membership details
+	results, err := db.Query(query, userId)
+
+	// if there is error retrieving for data
+	if err != nil {
+		fmt.Println("Error retrieving for data ", err)
+		return
+	}
+
+	// close result when the func has ended
+	defer results.Close()
+
+	// var to check if results exists
+	hasResult := false
+
+	// membership details headers
+	fmt.Println("Membership Details")
+	fmt.Printf("%-17s %-13s %-20s %-22s %-24s %-26s %-32s\n", 
+		"Membership Tier", 
+		"Hourly Rate", 
+		"Member Discount (%)", 
+		"Priority Level (0-2)", 
+		"Total Spent Per Month", 
+		"Membership Expiry Date", 
+		"Eligible to upgrade to next tier") 
+	fmt.Println(strings.Repeat("-", 163))
+
+	// when results exist 
+	for results.Next() != false {
+		hasResult = true // record exist
+
+		var memTier, memExpiryDate, eliForUpgrade string
+		var hrlyRate, memDisc, TSPM float64 // TSPM - total spent per month
+		var priorLvl int
+
+		// scan to get result of each row
+		err := results.Scan(&memTier, &hrlyRate, &memDisc, &priorLvl, &TSPM, &memExpiryDate, &eliForUpgrade)
+
+		// if there is error
+		if err != nil {
+			fmt.Println("There is an error in scanning data for membership ", err)
+			return
+		}
+
+		// display the results
+		fmt.Printf("%-17s %-13.2f %-20.2f %-22d %-24.2f %-26s %-32s\n", memTier, hrlyRate, memDisc, priorLvl, TSPM, memExpiryDate, eliForUpgrade)
+	}
+
+	// checking for any errors aft each iteration is done
+	if err = results.Err(); err != nil {
+		fmt.Println("Error iterating over membership details ", err)
+		return
+	}
+
+	// if result doesn't exist
+	if !hasResult {
+		fmt.Println("No membership record for user")
+		return
+	}
 }
 
 // User sign up for an account - POST

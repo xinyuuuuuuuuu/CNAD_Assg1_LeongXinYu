@@ -13,5 +13,5 @@ type Membership struct {
 	PiorityLevel                int       `json:"Piority Level (0-2)"`
 	TotalCostPerMonth           float64   `json:"Total Cost Per Month"`
 	MembershipExpiryDate        time.Time `json:"Membership Expiry Date"`
-	EligibleForUpgradeNextMonth string
+	EligibleForUpgradeNextMonth string    `json: "Eligible to upgrade membership tier"`
 }

@@ -1,8 +1,9 @@
 package main
 
 import (
-	userController "cnad_assg1_leongxinyu/services/userService/controller"
 	billingController "cnad_assg1_leongxinyu/services/billingService/controller"
+	membershipController "cnad_assg1_leongxinyu/services/membership/controller"
+	userController "cnad_assg1_leongxinyu/services/userService/controller"
 
 	"database/sql"
 	"fmt"
@@ -26,8 +27,8 @@ func main() {
 		var opt int
 		fmt.Println("============")
 		fmt.Println("User Console")
-		fmt.Println("1. Sign up for an account")  // done
-		fmt.Println("2. Login to account") // done
+		fmt.Println("1. Sign up for an account") // done
+		fmt.Println("2. Login to account")       // done
 		fmt.Println("3. Quit")
 		fmt.Println("Enter an option: ")
 		fmt.Scanln(&opt)
@@ -79,6 +80,7 @@ func LoggedInMenu(db *sql.DB, userId string) {
 			userController.UpdateUserDetails(db, userId)
 
 		case 2:
+			membershipController.ViewMembership(db, userId)
 
 		case 3:
 
