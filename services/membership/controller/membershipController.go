@@ -55,28 +55,14 @@ func CreateMembership(db *sql.DB, userId string) {
 	VALUES(?,?,?,?,?,?,?,?,?)
 	`
 	// Execute query and insert attributes
-	result, err := db.Exec(query, 
-		membership.MembershipId, 
-		membership.UserId, 
-		membership.MembershipTier, 
-		membership.HourlyRate,
-		membership.MemberDiscount,
-		membership.PiorityLevel,
-		membership.TotalCostPerMonth,
-		membership.MembershipExpiryDate,
-		membership.EligibleForUpgradeNextMonth)
+	_, err = db.Exec(query, membership.MembershipId, membership.UserId, membership.MembershipTier, membership.HourlyRate, membership.MemberDiscount, membership.PiorityLevel, membership.TotalCostPerMonth, membership.MembershipExpiryDate, membership.EligibleForUpgradeNextMonth)
 
 	// if there is an error
 	if err != nil {
 		panic(err.Error())
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		panic(err.Error())
-	}
-
-	fmt.Println("Number of rows affected for Membership: ", rows)
+	fmt.Println("Membership successfully created.")
 }
 
 // view membership details

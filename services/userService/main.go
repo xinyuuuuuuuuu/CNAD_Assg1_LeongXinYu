@@ -5,7 +5,7 @@ import (
 	membershipController "cnad_assg1_leongxinyu/services/membership/controller"
 	reservationController "cnad_assg1_leongxinyu/services/reservationService/controller"
 	userController "cnad_assg1_leongxinyu/services/userService/controller"
-	vehicleController "cnad_assg1_leongxinyu/services/vehicleService/controller"
+	//vehicleController "cnad_assg1_leongxinyu/services/vehicleService/controller"
 
 	"database/sql"
 	"fmt"
@@ -73,9 +73,9 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		fmt.Println("1. View User Details")       // done
 		fmt.Println("2. Update User Details")     //(done)
 		fmt.Println("3. View Membership Details") //(done)
-		fmt.Println("4. ")     
-		fmt.Println("5. View Billing History")    // must do - (done)
-		fmt.Println("6. View Available Vehicles") //must do - (done)
+		fmt.Println("4. View Billing History")  // done    
+		fmt.Println("5. Make Payment")    // havent do 
+		fmt.Println("6. Reserve Available Vehicles") //must do - (done)
 		fmt.Println("7. View Reservations")       //must do - (done)
 		fmt.Println("8. Update Reservation")      //must do, should update n delete reservation be tgt
 		fmt.Println("9. Log Out")                 //(done)
@@ -94,17 +94,19 @@ func LoggedInMenu(db *sql.DB, userId string) {
 			membershipController.ViewMembership(db, userId)
 
 		case 4:
-
-		case 5:
 			billingController.GetPastBilling(db, userId)
 
+		case 5:
+			
+
 		case 6:
-			vehicleController.ViewAvailableVehicles(db, userId)
+			reservationController.ReserveVehicle(db, userId)
 
 		case 7:
 			reservationController.ViewReservation(db, userId)
 
 		case 8:
+			reservationController.UpdateReservation(db, userId)
 
 		case 9:
 			println("Logging out of account...")
