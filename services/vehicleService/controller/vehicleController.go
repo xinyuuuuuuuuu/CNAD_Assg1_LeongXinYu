@@ -10,7 +10,7 @@ import (
 func ViewAvailableVehicles(db *sql.DB, userId string) {
 	// retrieve all available vehicles to rent
 	query := `
-	SELECT VehicleMake, VehicleModel, VehicleType, LicensePlate, VehicleLocation, VehicleChargeLevel, VehicleCleanliness
+	SELECT VehicleId, VehicleMake, VehicleModel, VehicleType, LicensePlate, VehicleLocation, VehicleChargeLevel, VehicleCleanliness
 	FROM Vehicle
 	WHERE VehicleStatus = "A"	
 	`
@@ -26,15 +26,15 @@ func ViewAvailableVehicles(db *sql.DB, userId string) {
 
 	// header for displaying vehicles
 	fmt.Println("Available Vehicles")
-	fmt.Printf("%-10s %-10s %-10s %-15s %-28s %-15s %-10s\n", "Make", "Model", "Type", "License Plate", "Location", "Charge Level", "Cleanliness")
-	fmt.Println(strings.Repeat("-", 100))
+	fmt.Printf("%-10s %-10s %-10s %-10s %-15s %-28s %-15s %-10s\n", "Make", "Model", "Type", "License Plate", "Location", "Charge Level", "Cleanliness")
+	fmt.Println(strings.Repeat("-", 120))
 
 	for results.Next() != false {
-		var vMake, vModel, vType, licensePlate, loc, cleanliness string
+		var vId, vMake, vModel, vType, licensePlate, loc, cleanliness string
 		var chargeLvl int 
 
-		// scan to get result result of each row
-		err := results.Scan(&vMake, &vModel, &vType, &licensePlate, &loc, &chargeLvl, &cleanliness)
+		// scan to get result of each row
+		err := results.Scan(&vId, &vMake, &vModel, &vType, &licensePlate, &loc, &chargeLvl, &cleanliness)
 
 		// if there is error
 		if err != nil {
@@ -43,7 +43,7 @@ func ViewAvailableVehicles(db *sql.DB, userId string) {
 		}
 
 		// display the result
-		fmt.Printf("%-10s %-10s %-10s %-15s %-28s %-15d %-10s\n", vMake, vModel, vType, licensePlate, loc, chargeLvl, cleanliness)
+		fmt.Printf("%-10s %-10s %-10s %-10s %-15s %-28s %-15d %-10s\n", vId, vMake, vModel, vType, licensePlate, loc, chargeLvl, cleanliness)
 	}
 	
 	// checking for any errs aft iteration is done
