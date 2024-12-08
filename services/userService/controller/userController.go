@@ -28,7 +28,7 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 // User sign up for an account - POST
-func Signup(db *sql.DB) {
+func Signup(db *sql.DB) string {
 	reader := bufio.NewReader(os.Stdin)
 
 	var user model.UserService
@@ -39,7 +39,7 @@ func Signup(db *sql.DB) {
 	userId, err = utility.GenerateUserId(db)
 	if err != nil {
 		fmt.Println("Error generating user id: ", err)
-		return
+		return ""
 	}
 	user.UserId = userId
 
@@ -109,18 +109,15 @@ func Signup(db *sql.DB) {
 	(UserId, Name, Email, Password, ContactNo, Dob, Address, CreatedDateTime)
 	VALUES(?,?,?,?,?,?,?,?)
 	`
-	result, err := db.Exec(query, user.UserId, user.Name, user.Email, user.Password, user.ContactNo, user.Dob, user.Address, user.CreatedDateTime)
+	_, err = db.Exec(query, user.UserId, user.Name, user.Email, user.Password, user.ContactNo, user.Dob, user.Address, user.CreatedDateTime)
 
 	if err != nil {
-		panic(err.Error())
+		fmt.Println("Error inserting into database ", err)
+		return ""
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Println("Number of rows affected: ", rows)
-
+	fmt.Println("Successful Sign Up")
+	return userId
 }
 
 // User login to their account - POST

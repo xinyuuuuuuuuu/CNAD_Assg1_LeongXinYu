@@ -1,18 +1,83 @@
 package controller
 
 import (
+	"cnad_assg1_leongxinyu/services/membership/model"
+	"cnad_assg1_leongxinyu/services/membership/utility"
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // calculate membershipExpiryDate
 
 // create membership details for new user
-//func CreateMembership(db *sqlDB, userId string) {
-// memberid
+func CreateMembership(db *sql.DB, userId string) {
 
-//}
+	var membership model.Membership
+
+	// membershipId
+	membershipId, err := utility.GenerateMembershipId(db)
+
+	if err != nil {
+		fmt.Println("Error generating membership id: ", err)
+		return
+	}
+	membership.MembershipId = membershipId
+
+	// assign userId
+	membership.UserId = userId
+
+	// assign MembershipTier, new member alws start from basic tier
+	membership.MembershipTier = "Basic"
+
+	// assign Hourly Rate , new member would be 15.00
+	membership.HourlyRate = 15.00
+
+	// assign Member Discount, new member start from 0.00
+	membership.MemberDiscount = 0.00
+
+	// assign Priority Level, new member start from 0
+	membership.PiorityLevel = 0
+
+	// assign total cost per month, new account starts from 0
+	membership.TotalCostPerMonth = 0.00
+
+	// assign membership expiry date
+	membership.MembershipExpiryDate = time.Now().AddDate(0, 2, 0)
+
+	// assign eligible for upgrade next month, new account starts from 'F': false
+	membership.EligibleForUpgradeNextMonth = "F"
+
+	// insert data into Membership table
+	query := `
+	INSERT INTO Membership(MembershipId, UserId, MembershipTier, HourlyRate, MemberDiscount, PriorityLevel, TotalCostPerMonth, MembershipExpiryDate, EligibleForUpgradeNextMonth)
+	VALUES(?,?,?,?,?,?,?,?,?)
+	`
+	// Execute query and insert attributes
+	result, err := db.Exec(query, 
+		membership.MembershipId, 
+		membership.UserId, 
+		membership.MembershipTier, 
+		membership.HourlyRate,
+		membership.MemberDiscount,
+		membership.PiorityLevel,
+		membership.TotalCostPerMonth,
+		membership.MembershipExpiryDate,
+		membership.EligibleForUpgradeNextMonth)
+
+	// if there is an error
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println("Number of rows affected for Membership: ", rows)
+}
 
 // view membership details
 func ViewMembership(db *sql.DB, userId string) {
@@ -40,17 +105,17 @@ func ViewMembership(db *sql.DB, userId string) {
 
 	// membership details headers
 	fmt.Println("Membership Details")
-	fmt.Printf("%-17s %-13s %-20s %-22s %-24s %-26s %-32s\n", 
-		"Membership Tier", 
-		"Hourly Rate", 
-		"Member Discount (%)", 
-		"Priority Level (0-2)", 
-		"Total Spent Per Month", 
-		"Membership Expiry Date", 
-		"Eligible to upgrade to next tier") 
+	fmt.Printf("%-17s %-13s %-20s %-22s %-24s %-26s %-32s\n",
+		"Membership Tier",
+		"Hourly Rate",
+		"Member Discount (%)",
+		"Priority Level (0-2)",
+		"Total Spent Per Month",
+		"Membership Expiry Date",
+		"Eligible to upgrade to next tier")
 	fmt.Println(strings.Repeat("-", 163))
 
-	// when results exist 
+	// when results exist
 	for results.Next() != false {
 		hasResult = true // record exist
 
@@ -83,97 +148,3 @@ func ViewMembership(db *sql.DB, userId string) {
 		return
 	}
 }
-
-// User sign up for an account - POST
-// func Signup(db *sql.DB) {
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	var user model.UserService
-// 	var userId string
-// 	var err error
-
-// 	// userid
-// 	userId, err = utility.GenerateUserId(db)
-// 	if err != nil {
-// 		fmt.Println("Error generating user id: ", err)
-// 		return
-// 	}
-// 	user.UserId = userId
-
-// 	// Name
-// 	fmt.Print("Name: ")
-// 	user.Name, _ = reader.ReadString('\n')
-// 	user.Name = strings.TrimSpace(user.Name)
-
-// 	// Email
-// 	for {
-// 		fmt.Print("Email: ")
-// 		user.Email, _ = reader.ReadString('\n')
-// 		user.Email = strings.TrimSpace(user.Email)
-// 		// if email input contains "@"
-// 		if strings.Contains(user.Email, "@") {
-// 			break;
-// 		}
-
-// 		fmt.Println("Invalid email format. Please try again.")
-// 	}
-
-// 	// Password
-// 	fmt.Print("Password: ")
-// 	var pw string
-// 	pw, _ = reader.ReadString('\n')
-// 	pw = strings.TrimSpace(pw)
-// 	hash, err := HashedPassword(pw)
-// 	if err != nil {
-// 		fmt.Println("Error hashing password ", err)
-// 	}
-
-// 	// store hashed password
-// 	user.Password = hash
-// 	//fmt.Println("Hash: ", user.Password) // checking purpose
-
-// 	// ContactNo
-// 	fmt.Print("Contact Number: ")
-// 	user.ContactNo, _ = reader.ReadString('\n')
-// 	user.ContactNo = strings.TrimSpace(user.ContactNo)
-
-// 	// Dob
-// 	for {
-// 		fmt.Print("Date of Birth (YYYY-MM-DD): ")
-// 		dobInput, _ := reader.ReadString('\n') // Read the input as a string
-// 		dobInput = strings.TrimSpace(dobInput)
-// 		user.Dob, err = time.Parse("2006-01-02", dobInput)
-// 		if err != nil {
-// 			fmt.Println("Date format is invalid. Please use YYYY-MM-DD.")
-// 			continue // user can input if format was prev invalid
-// 		}
-// 		break // break loop when user input valid date
-// 	}
-
-// 	// Address
-// 	fmt.Print("Address: ")
-// 	user.Address, _ = reader.ReadString('\n')
-// 	user.Address = strings.TrimSpace(user.Address)
-
-// 	// CreatedDateTime
-// 	user.CreatedDateTime = time.Now()
-
-// 	// insert data into UserService table
-// 	query := `
-// 	INSERT INTO UserService
-// 	(UserId, Name, Email, Password, ContactNo, Dob, Address, CreatedDateTime)
-// 	VALUES(?,?,?,?,?,?,?,?)
-// 	`
-// 	result, err := db.Exec(query, user.UserId, user.Name, user.Email, user.Password, user.ContactNo, user.Dob, user.Address, user.CreatedDateTime)
-
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-
-// 	rows, err := result.RowsAffected()
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-// 	fmt.Println("Number of rows affected: ", rows)
-
-// }

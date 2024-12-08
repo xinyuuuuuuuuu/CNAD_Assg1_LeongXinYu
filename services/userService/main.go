@@ -36,7 +36,12 @@ func main() {
 
 		switch opt {
 		case 1:
-			userController.Signup(db)
+			userId := userController.Signup(db)
+			if userId != "" {
+				membershipController.CreateMembership(db, userId)
+			} else {
+				fmt.Println("Sign up has failed. Please try again ...")
+			}
 
 		case 2:
 			userId := userController.Login(db)
@@ -63,14 +68,14 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		fmt.Println("============")
 		fmt.Println("Welcome!")
 		fmt.Println("Member Console")
-		fmt.Println("1. Update user details") //(done)
-		fmt.Println("2. View Membership Details")
+		fmt.Println("1. Update user details")     //(done)
+		fmt.Println("2. View Membership Details") //(done)
 		fmt.Println("3. View Rental history")     //dk if wan or not - might need to create rentalHistory table
 		fmt.Println("4. View Billing History")    // must do - (done)
 		fmt.Println("5. View Available Vehicles") //must do
 		fmt.Println("6. View Reservations")       //must do
 		fmt.Println("7. Update Reservation")      //must do, should update n delete reservation be tgt
-		fmt.Println("8. Log Out")
+		fmt.Println("8. Log Out")                 //(done)
 		fmt.Println("Enter an option: ")
 		fmt.Scanln(&opt)
 		fmt.Println("\n")

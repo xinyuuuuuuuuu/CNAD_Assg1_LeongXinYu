@@ -2,7 +2,7 @@ package controller
 
 import "database/sql"
 
-// view vehicles
+// view all available vehicles
 func ViewAvailableVehicles(db *sql.DB, userId string) {
 	// retrieve all available vehicles 
 
