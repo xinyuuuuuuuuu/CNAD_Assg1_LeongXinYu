@@ -30,7 +30,7 @@ func GetPastBilling(db *sql.DB, userId string) {
 	hasResult := false
 
 	// billing headers
-	fmt.Println("Past Billings")
+	fmt.Println("Billings")
 	fmt.Printf(("%-21s %-10s %-16s %-16s\n"), "Date", "Total", "Payment Method", "Payment Status")
 	fmt.Println(strings.Repeat("-", 60))
 
