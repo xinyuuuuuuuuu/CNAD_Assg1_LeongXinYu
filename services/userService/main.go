@@ -26,8 +26,8 @@ func main() {
 		var opt int
 		fmt.Println("============")
 		fmt.Println("User Console")
-		fmt.Println("1. Sign up for an account")
-		fmt.Println("2. Login to account")
+		fmt.Println("1. Sign up for an account")  // done
+		fmt.Println("2. Login to account") // done
 		fmt.Println("3. Quit")
 		fmt.Println("Enter an option: ")
 		fmt.Scanln(&opt)
@@ -65,11 +65,11 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		fmt.Println("1. Update user details") //(done)
 		fmt.Println("2. View Membership Details")
 		fmt.Println("3. View Rental history")     //dk if wan or not - might need to create rentalHistory table
-		fmt.Println("4. View Billing History")    // must do
+		fmt.Println("4. View Billing History")    // must do - (done)
 		fmt.Println("5. View Available Vehicles") //must do
 		fmt.Println("6. View Reservations")       //must do
 		fmt.Println("7. Update Reservation")      //must do, should update n delete reservation be tgt
-		fmt.Println("8. Quit")
+		fmt.Println("8. Log Out")
 		fmt.Println("Enter an option: ")
 		fmt.Scanln(&opt)
 		fmt.Println("\n")
@@ -92,7 +92,7 @@ func LoggedInMenu(db *sql.DB, userId string) {
 		case 7:
 
 		case 8:
-			println("Exiting out of application...")
+			println("Logging out of account...")
 			return
 
 		default:

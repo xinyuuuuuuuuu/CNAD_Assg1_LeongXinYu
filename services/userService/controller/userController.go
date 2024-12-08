@@ -74,7 +74,7 @@ func Signup(db *sql.DB) {
 
 	// store hashed password
 	user.Password = hash
-	//fmt.Println("Hash: ", user.Password) // checking purpose
+	fmt.Println("Hash: ", user.Password) // checking purpose
 
 	// ContactNo
 	fmt.Print("Contact Number: ")
