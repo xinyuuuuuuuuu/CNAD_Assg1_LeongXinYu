@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS PaymentTransactions;
 DROP TABLE IF EXISTS Promotion;
 DROP TABLE IF EXISTS Billing;
 
+-- Create Billing table
 CREATE TABLE Billing (
 BillingId INT AUTO_INCREMENT PRIMARY KEY,
 ReservationId INT NOT NULL, 
@@ -21,7 +22,7 @@ FOREIGN KEY (ReservationId) REFERENCES vehicle_service.Reservation(ReservationId
 FOREIGN KEY (UserId) REFERENCES user_management.UserService(UserId) ON DELETE CASCADE
 );
 
-
+-- Insert data into Billing table
 INSERT INTO Billing (UserId, ReservationId, BillingDate, BillingTotal, MembershipDiscount, PromoDiscount, BillingFinal, PaymentStatus) 
 VALUES
 (1, 1, '2024-11-20 14:00:00', 19.00, 5.00, 0.00, 14.00, 'Paid'), -- Premium, 5% discount
@@ -30,7 +31,8 @@ VALUES
 (2, 4, '2024-12-15 14:30:00', 22.50, 10.00, 0.00, 12.50, 'Paid'), -- VIP, 10% discount
 (3, 5, '2024-12-19 20:00:00', 38.00, 5.00, 0.00, 33.00, 'Pending'), -- Premium, 5% discount
 (4, 6, '2024-12-24 09:00:00', 108.00, 0.00, 20.00, 88.00, 'Overdue'); -- Basic, no discount, but $20 promo
-    
+
+-- Create Promotion table    
 CREATE TABLE Promotion(
 PromoId INT AUTO_INCREMENT PRIMARY KEY,
 PromoType ENUM('Flat Discount', 'Percentage Discount', 'Seasonal Offer') NOT NULL,
@@ -39,12 +41,14 @@ PromoStartDate DATE,
 PromoEndDate DATE
 );
 
+-- Insert data into Promotion table
 INSERT INTO Promotion (PromoType, PromoDiscountPercentage, PromoStartDate, PromoEndDate) 
 VALUES
 ('Flat Discount', 10.00, '2024-12-15', '2024-12-31'),
 ('Percentage Discount', 5.00, '2024-12-01', '2024-12-10'),
 ('Seasonal Offer', 20.00, '2024-12-20', '2024-12-25');
 
+-- Create PaymentTransactions table
 CREATE TABLE PaymentTransactions (
 TransactionId INT AUTO_INCREMENT PRIMARY KEY,
 BillingId INT NOT NULL,
@@ -58,6 +62,7 @@ FOREIGN KEY (BillingId) REFERENCES billing_service.Billing(BillingId) ON DELETE 
 FOREIGN KEY (UserId) REFERENCES user_management.UserService(UserId) ON DELETE CASCADE
 );
 
+-- Insert data into PaymentTransactions table
 INSERT INTO PaymentTransactions (BillingId, UserId, PaymentMethod, PaymentStatus, TransactionAmount, TransactionDate) 
 VALUES
 (1, 1, 'Credit Card', 'Completed', 14.00, '2024-11-21 14:00:00'),

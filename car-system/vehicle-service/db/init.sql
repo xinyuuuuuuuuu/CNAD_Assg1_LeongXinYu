@@ -5,6 +5,7 @@ USE vehicle_service;
 DROP TABLE IF EXISTS Reservation;
 DROP TABLE IF EXISTS Vehicle;
 
+-- Create Vehicle table
 CREATE TABLE Vehicle(
 VehicleId INT AUTO_INCREMENT PRIMARY KEY,
 VehicleMake VARCHAR(50) NOT NULL,
@@ -17,6 +18,7 @@ VehicleChargeLevel TINYINT UNSIGNED NOT NULL CHECK (VehicleChargeLevel BETWEEN 0
 VehicleCleanliness ENUM('Clean', 'Moderate', 'Dirty') NOT NULL
 );
 
+-- Insert data into Vehicle table
 INSERT INTO Vehicle (VehicleMake, VehicleModel, VehicleType, LicensePlate, VehicleStatus, VehicleLocation, VehicleChargeLevel, VehicleCleanliness) 
 VALUES
 ('Tesla', 'Model S', 'Sedan', 'ABC1234', 'Available', 'Downtown Parking Lot 1', 85, 'Clean'),
@@ -25,6 +27,7 @@ VALUES
 ('Chevrolet', 'Bolt EV', 'Compact', 'GHI3456', 'Available', 'Airport Terminal 2 Lot A', 95, 'Clean'),
 ('Hyundai', 'Kona Electric', 'SUV', 'JKL7890', 'Reserved', 'Suburban Plaza Lot C', 60, 'Moderate');
 
+-- Create Reservation table
 CREATE TABLE Reservation(
 ReservationId INT AUTO_INCREMENT PRIMARY KEY,
 UserId INT NOT NULL,
@@ -40,6 +43,7 @@ FOREIGN KEY (UserId) REFERENCES user_management.UserService(UserId) ON DELETE CA
 FOREIGN KEY (VehicleId) REFERENCES Vehicle(VehicleId) ON DELETE CASCADE
 );
 
+-- Insert data into Reservation table
 INSERT INTO Reservation (UserId, VehicleId, ReserveStatus, ReserveStartDate, ReserveEndDate, EstimatedTotalCost, CreatedDate, ModifiedDate) 
 VALUES
 (1, 5, 'Completed', '2024-12-10 05:43:05', '2024-12-10 08:43:05', 20.00, '2024-12-09 05:43:05', '2024-12-10 08:43:05'),  
