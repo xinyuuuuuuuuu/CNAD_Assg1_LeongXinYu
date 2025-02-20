@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
 	"user-management/config"
-	"context"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -15,7 +15,9 @@ func ValidateJWT(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// extract the authorization header
 		authHeader := r.Header.Get("Authorization")
+		fmt.Println("🟢 Received Authorization Header:", authHeader)
 		if authHeader == "" {
+			fmt.Println("🔴 Missing Token")
 			http.Error(w, "Missing token", http.StatusUnauthorized)
 			return
 		}
@@ -38,30 +40,32 @@ func ValidateJWT(next http.HandlerFunc) http.HandlerFunc {
 
 		// check if token is valid
 		if err != nil || !token.Valid {
+			fmt.Println("🔴 Invalid Token:", err)
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
 		// extract userId from token claims
 		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
+		if !ok || !token.Valid {
+			fmt.Println("🔴 Invalid Token Claims")
 			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 			return
 		}
 
 		// convert userId form float64 to int
-		userIdFloat, ok := int(claims["userId"].float(64))
+		userIdFloat, ok := claims["userId"].(float64)
 		if !ok {
+			fmt.Println("🔴 Invalid User ID in Token")
 			http.Error(w, "Invalid user id in token", http.StatusUnauthorized)
 			return
 		}
 		userId := int(userIdFloat)
 
+		fmt.Println("🟢 Token Valid. Extracted userID:", userId)
+
 		// store userid in request context
 		ctx := context.WithValue(r.Context(), "userId", userId)
 		next(w, r.WithContext(ctx))
-
-		// proceed to next handler if token is valid
-		next(w, r)
 	}
 }

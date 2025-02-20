@@ -8,24 +8,33 @@ import (
 	"user-management/routes"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
-	// connect to database
+	// Connect to the database
 	database, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal("Failed to connect to the database:", err)
 	}
 	defer database.Close()
 
-	// initialize router
+	// Initialize router
 	router := mux.NewRouter()
 
-	// set up user routes
+	// Set up user routes
 	routes.UserRoutes(router, database)
 
-	// start server
+	// Configure CORS
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Change this to specific origins if needed
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	// Start server with CORS middleware
 	port := ":8080"
 	fmt.Println("Server is running on port", port)
-	log.Fatal(http.ListenAndServe(port, router))
+	log.Fatal(http.ListenAndServe(port, corsHandler.Handler(router)))
 }
