@@ -11,7 +11,7 @@ import (
 	"user-management/config"
 	"user-management/model"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -36,27 +36,25 @@ type TokenResponse struct {
 
 // function to create jwt token
 func GenerateJWT(userId int) (string, error) {
-	// define expiration time
 	expirationTime := time.Now().Add(24 * time.Hour)
 
-	// create jwt claims
 	claims := jwt.MapClaims{
-		"userId": userId,
+		"userId": userId, // ✅ Ensure correct userId is stored in token
 		"exp":    expirationTime.Unix(),
 	}
 
-	// create the token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// sign the token with the secret key
-	secretKey := config.GetJWTSecret()
-	signedToken, err := token.SignedString(secretKey)
+	signedToken, err := token.SignedString(config.GetJWTSecret())
 	if err != nil {
 		return "", err
 	}
 
+	fmt.Println("[DEBUG] Generated token for user ID:", userId) // ✅ Debug userId in JWT
+
 	return signedToken, nil
 }
+
 
 func Signup(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// Set response header

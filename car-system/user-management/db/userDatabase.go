@@ -14,7 +14,7 @@ var db *sql.DB
 // connection to database
 func ConnectDB()(*sql.DB, error) {
 	// load .env file
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
