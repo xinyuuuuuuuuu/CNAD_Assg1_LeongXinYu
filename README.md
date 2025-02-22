@@ -1,7 +1,7 @@
 # CNAD_Assg1_LeongXinYu
 
 1. Design considerations
-1.1 Loose Coupling
+<b>1.1 Loose Coupling</b>
    The services are independent, it interacts through APIs, minimizing dependencies on one another.
 
 1.2 Security
@@ -10,6 +10,9 @@
 
 1.3 Business function
   Each microservice handles a specific business function for example, user management, vehicle service and billing service.
+  User Management Service – Handles user authentication and account management.
+  Vehicle Service – Manages vehicle listings and reservations.
+  Billing Service – Handles payments and billing transactions.
 
 2. Architecture diagram
    ![CNAD-Assg1-XinYu-ArchitectureDiagram](https://github.com/user-attachments/assets/ca7527bb-20cc-4e9e-9444-95a464fc00ec)
