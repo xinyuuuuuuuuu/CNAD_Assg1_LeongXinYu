@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap Link (Updated without integrity check) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+      defer
+    ></script>
+
+    <!-- JQuery Link -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Font Awesome -->
+    <script
+      src="https://kit.fontawesome.com/4f6d96e165.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Page Name -->
+    <title>View Account - ElectricR</title>
+
+    <!-- Linking CSS -->
+    <link rel="stylesheet" href="./styles/styles.css" />
+
+    <!-- Linking JS -->
+    <script>
+      $(document).ready(function () {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          $('#accountDetails').html('<p class="text-danger">You must be logged in to view this page.</p>');
+          return;
+        }
+
+        // Fetch user account details
+        $.ajax({
+          url: 'http://localhost:8080/account',
+          type: 'GET',
+          headers: { Authorization: 'Bearer ' + token },
+          success: function (response) {
+            console.log("API Response:", response);
+            if (response) {
+              $('#userName').html(`<input type="text" id="updateName" value="${response.name || ''}" class="form-control" /> <button class="btn btn-primary" onclick="updateAccount('name')">Update</button>`);
+              $('#userEmail').html(`<input type="email" id="updateEmail" value="${response.email || ''}" class="form-control" /> <button class="btn btn-primary" onclick="updateAccount('email')">Update</button>`);
+              $('#userContact').html(`<input type="text" id="updateContact" value="${response.contact_no || ''}" class="form-control" /> <button class="btn btn-primary" onclick="updateAccount('contact_no')">Update</button>`);
+              $('#userAddress').html(`<input type="text" id="updateAddress" value="${response.address || ''}" class="form-control" /> <button class="btn btn-primary" onclick="updateAccount('address')">Update</button>`);
+              $('#userDob').text(response.dob || 'N/A');
+              $('#membershipLevel').text(response.membership_level || 'N/A');
+            } else {
+              $('#accountDetails').html('<p class="text-danger">No account details found.</p>');
+            }
+          },
+          error: function (xhr) {
+            if (xhr.status === 401) {
+              $('#accountDetails').html('<p class="text-danger">Unauthorized access. Please log in again.</p>');
+              localStorage.removeItem('authToken');
+            } else {
+              console.error('Error fetching user details:', xhr.statusText);
+              $('#accountDetails').html('<p class="text-danger">Failed to load account details. Ensure the backend is running and try again.</p>');
+            }
+          },
+        });
+      });
+
+      function updateAccount(field) {
+        const token = localStorage.getItem('authToken');
+        const updatedData = {};
+        const inputField = $(`#update${field.charAt(0).toUpperCase() + field.slice(1)}`);
+        updatedData[field] = inputField.val();
+
+        $.ajax({
+          url: 'http://localhost:8080/account-update',
+          type: 'PUT',
+          contentType: 'application/json',
+          headers: { Authorization: 'Bearer ' + token },
+          data: JSON.stringify(updatedData),
+          success: function (response) {
+            alert(`${field.replace('_', ' ')} updated successfully!`);
+            inputField.attr("value", updatedData[field]);
+          },
+          error: function (xhr) {
+            console.error('Error updating user details:', xhr.responseText);
+            alert('Failed to update account details.');
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div id="navbar-container"></div>
+    </header>
+
+    <div class="container text-center mt-5">
+      <h1>Account Details</h1>
+      <p class="mb-3">Manage your account information here.</p>
+      <div id="accountDetails" class="card p-4 shadow-lg mx-auto" style="max-width: 500px;">
+        <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+        <p><strong>Contact No:</strong> <span id="userContact">Loading...</span></p>
+        <p><strong>Address:</strong> <span id="userAddress">Loading...</span></p>
+        <p><strong>Date of Birth:</strong> <span id="userDob">Loading...</span></p>
+        <p><strong>Membership Level:</strong> <span id="membershipLevel">Loading...</span></p>
+      </div>
+      <button class="btn btn-secondary mt-3" onclick="window.location.href='memberHome.html'">Back to Homepage</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bd-footer mt-5">
+      <div id="footer-container" class="container py-4 px-4 text-body-secondary"></div>
+    </footer>
+  </body>
+</html>

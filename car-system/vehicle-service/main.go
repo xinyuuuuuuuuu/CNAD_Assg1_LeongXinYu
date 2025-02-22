@@ -29,7 +29,10 @@ func main() {
 
 	// Configure CORS
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins: []string{
+			"http://127.0.0.1:5500", // Allow your frontend domain
+			"http://localhost:5500",  // Localhost frontend URL
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,

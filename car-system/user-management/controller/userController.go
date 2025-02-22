@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -55,17 +56,26 @@ func GenerateJWT(userId int) (string, error) {
 	return signedToken, nil
 }
 
-
 func Signup(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 	log.Println("[DEBUG] Signup handler invoked")
 
-	var user model.UserService
-	err := json.NewDecoder(r.Body).Decode(&user)
+	// Read raw request body for debugging
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		log.Println("[ERROR] Error parsing JSON:", err)
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		log.Println("[ERROR] Failed to read request body:", err)
+		return
+	}
+	log.Printf("[DEBUG] Raw Request Body: %s\n", string(body))
+
+	// Decode JSON
+	var user model.UserService
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		log.Println("[ERROR] JSON Parsing Error:", err)
 		return
 	}
 
@@ -74,22 +84,22 @@ func Signup(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	// Validate required fields
 	missingFields := []string{}
-	if user.Name == "" {
+	if strings.TrimSpace(user.Name) == "" {
 		missingFields = append(missingFields, "Name")
 	}
-	if user.Email == "" {
+	if strings.TrimSpace(user.Email) == "" {
 		missingFields = append(missingFields, "Email")
 	}
-	if user.ContactNo == "" {
+	if strings.TrimSpace(user.ContactNo) == "" {
 		missingFields = append(missingFields, "ContactNo")
 	}
-	if user.Dob == "" {
+	if strings.TrimSpace(user.Dob) == "" {
 		missingFields = append(missingFields, "Dob")
 	}
-	if user.Address == "" {
+	if strings.TrimSpace(user.Address) == "" {
 		missingFields = append(missingFields, "Address")
 	}
-	if user.HashedPassword == "" {
+	if strings.TrimSpace(user.HashedPassword) == "" {
 		missingFields = append(missingFields, "HashedPassword")
 	}
 
@@ -100,15 +110,13 @@ func Signup(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate DOB
+	// Validate and parse DOB
 	parsedDob, err := time.Parse("2006-01-02", user.Dob)
 	if err != nil {
 		http.Error(w, "Invalid Date of Birth format. Use YYYY-MM-DD", http.StatusBadRequest)
 		log.Println("[ERROR] Error parsing DOB:", err)
 		return
 	}
-
-	// Assign parsedDob to user obj
 	userTime := parsedDob.UTC()
 	log.Printf("[DEBUG] Parsed DOB (UTC): %s\n", userTime)
 
@@ -325,23 +333,50 @@ func UpdateAccountDetails(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("UpdateAccountDetails: Retrieved userId: %d\n", userId)
 
-	// parse request body
+	// Fetch existing user details
+	var existingUser model.UserService
+	err := db.QueryRow("SELECT Name, Email, ContactNo, Address FROM UserService WHERE UserId = ?", userId).Scan(
+		&existingUser.Name,
+		&existingUser.Email,
+		&existingUser.ContactNo,
+		&existingUser.Address,
+	)
+	if err != nil {
+		log.Printf("UpdateAccountDetails: Error fetching existing data: %v\n", err)
+		http.Error(w, "Failed to fetch user details", http.StatusInternalServerError)
+		return
+	}
+
+	// Parse request body
 	var updatedUser model.UserService
-	err := json.NewDecoder(r.Body).Decode(&updatedUser)
+	err = json.NewDecoder(r.Body).Decode(&updatedUser)
 	if err != nil {
 		log.Printf("UpdateAccountDetails: Error decoding request body: %v\n", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	// update query
+	// Use existing values if fields are not updated
+	if updatedUser.Name == "" {
+		updatedUser.Name = existingUser.Name
+	}
+	if updatedUser.Email == "" {
+		updatedUser.Email = existingUser.Email
+	}
+	if updatedUser.ContactNo == "" {
+		updatedUser.ContactNo = existingUser.ContactNo
+	}
+	if updatedUser.Address == "" {
+		updatedUser.Address = existingUser.Address
+	}
+
+	// Update query with conditional fields
 	query := `
 	UPDATE UserService 
 	SET Name = ?, Email = ?, ContactNo = ?, Address = ?
 	WHERE UserId = ?
 	`
 
-	// execute update query
 	_, err = db.Exec(query, updatedUser.Name, updatedUser.Email, updatedUser.ContactNo, updatedUser.Address, userId)
 	if err != nil {
 		log.Printf("UpdateAccountDetails: Database error: %v\n", err)
@@ -351,7 +386,7 @@ func UpdateAccountDetails(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	log.Println("UpdateAccountDetails: User details updated successfully")
 
-	// send success response
+	// Send success response
 	w.WriteHeader(http.StatusOK)
 	response := map[string]string{"message": "Account details updated successfully"}
 	err = json.NewEncoder(w).Encode(response)

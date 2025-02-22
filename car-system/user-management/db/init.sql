@@ -20,10 +20,11 @@ CREATE TABLE UserService(
 -- Insert data into UserService table
 INSERT INTO UserService (Name, Email, ContactNo, Dob, Address, HashedPassword, MembershipLevel, CreatedDateTime) 
 VALUES 
-('Mike Tan', 'xinyu@gmail.com', '99312568', '1998-10-09', '41 Woodlands Drive', '$2a$14$tUIOKXZjOjGloasiKhQU0uRUe1.b9uEYIP4/y5fiXzQMJiYDO8fe2', 'Basic', '2025-01-19 20:08:07'),
+('Xinyu Leong', 'xinyu@gmail.com', '99312568', '1998-10-09', '41 Woodlands Drive', '$2y$14$z0i.jTjUEIIefArlZp0kheVCox2J/..XJB.LOyIzqqSY5IBVcmCpG', 'Basic', '2025-01-19 20:08:07'),
 ('Julie Phang', 'julie@gmail.com', '80984356', '1995-08-12', '8 Jurong West Drive', '$2a$14$tUIOKXZjOjGloasiKhQU0uRUe1.b9uEYIP4/y5fiXzQMJiYDO8fe2', 'Premium', '2024-12-20 10:38:58'),
 ('Joe Doe', 'joemama123@gmail.com', '98568995', '2000-11-01', '29 Clementi East Street', '$2a$14$tUIOKXZjOjGloasiKhQU0uRUe1.b9uEYIP4/y5fiXzQMJiYDO8fe2', 'VIP', '2024-11-20 23:01:09'),
-('Lee Hi', 'hibye@gmail.com', '87654321', '1990-11-23', '25 Tanglin Road', '$2a$14$tUIOKXZjOjGloasiKhQU0uRUe1.b9uEYIP4/y5fiXzQMJiYDO8fe2', 'Basic', '2024-10-21 08:27:54');
+('Lee Hi', 'hibye@gmail.com', '87654321', '1990-11-23', '25 Tanglin Road', '$2a$14$tUIOKXZjOjGloasiKhQU0uRUe1.b9uEYIP4/y5fiXzQMJiYDO8fe2', 'Basic', '2024-10-21 08:27:54'),
+('Charlotte', 'charlotte@gmail.com', '90218765', '1994-11-23', '25 Tanglin Road', '$2y$14$z0i.jTjUEIIefArlZp0kheVCox2J/..XJB.LOyIzqqSY5IBVcmCpG', 'Basic', '2024-10-21 08:27:54');
 
 -- Verify the data
 SELECT * FROM UserService;

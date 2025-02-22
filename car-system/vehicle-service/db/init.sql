@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS vehicle_service;
 USE vehicle_service;
-select * from Vehicle;
-select * from Reservation;
+
 -- Drop table if they exist
 DROP TABLE IF EXISTS Reservation;
 DROP TABLE IF EXISTS Vehicle;
@@ -24,7 +23,13 @@ VALUES
 ('Nissan', 'Leaf', 'Hatchback', 'XYZ5678', 'Reserved', 'Uptown Garage Level 3', 70, 'Moderate'),
 ('BMW', 'i3', 'Sedan', 'DEF9012', 'Not Available', 'Central Mall Basement 2', 50, 'Dirty'),
 ('Chevrolet', 'Bolt EV', 'Compact', 'GHI3456', 'Available', 'Airport Terminal 2 Lot A', 95, 'Clean'),
-('Hyundai', 'Kona Electric', 'SUV', 'JKL7890', 'Reserved', 'Suburban Plaza Lot C', 60, 'Moderate');
+('Hyundai', 'Kona Electric', 'SUV', 'JKL7890', 'Reserved', 'Suburban Plaza Lot C', 60, 'Moderate'),
+('Ford', 'Mustang Mach-E', 'SUV', 'MNO4321', 'Available', 'Downtown Parking Lot 2', 90, 'Clean'),
+('Volkswagen', 'ID.4', 'SUV', 'PQR5678', 'Available', 'City Center Garage Level 1', 80, 'Clean'),
+('Audi', 'e-tron', 'SUV', 'STU6789', 'Available', 'Tech Park Basement 3', 75, 'Moderate'),
+('Porsche', 'Taycan', 'Sedan', 'VWX7890', 'Available', 'Luxury Plaza VIP Parking', 65, 'Clean'),
+('Mercedes-Benz', 'EQC', 'SUV', 'YZA9012', 'Available', 'Business District Parking A', 88, 'Clean');
+
 
 CREATE TABLE Reservation(
 ReservationId INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,16 +42,15 @@ EstimatedTotalCost DECIMAL(10,2),
 CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-FOREIGN KEY (UserId) REFERENCES user_management.UserService(UserId) ON DELETE CASCADE,
 FOREIGN KEY (VehicleId) REFERENCES Vehicle(VehicleId) ON DELETE CASCADE
 );
 
 INSERT INTO Reservation (UserId, VehicleId, ReserveStatus, ReserveStartDate, ReserveEndDate, EstimatedTotalCost, CreatedDate, ModifiedDate) 
 VALUES
-(1, 5, 'Completed', '2024-12-10 05:43:05', '2024-12-10 08:43:05', 20.00, '2024-12-09 05:43:05', '2024-12-10 08:43:05'),  
-(1, 1, 'Completed', '2024-12-06 05:43:05', '2024-12-06 07:43:05', 60.00, '2024-12-05 05:43:05', '2024-12-06 07:43:05'), 
-(3, 2, 'Active', '2025-02-17 22:43:05', '2025-02-18 10:43:05', 40.00, '2025-02-16 22:43:05', '2025-02-18 10:43:05'), 
-(2, 2, 'Active', '2025-02-17 22:43:05', '2025-02-18 07:43:05', 25.00, '2025-02-16 22:43:05', '2025-02-18 07:43:05'), 
-(3, 3, 'Pending', '2025-03-15 05:43:05', '2025-03-15 10:43:05', 40.00, '2025-03-14 05:43:05', NULL), 
-(4, 4, 'Pending', '2025-03-06 05:43:05', '2025-03-06 09:43:05', 135.00, '2025-03-05 05:43:05', '2025-03-06 09:43:05');
+(1, 5, 'Completed', '2024-12-10 05:43:05', '2024-12-10 08:43:05', 150.00, '2024-12-09 05:43:05', '2024-12-10 08:43:05'),  
+(1, 1, 'Completed', '2024-12-06 05:43:05', '2024-12-06 07:43:05', 100.00, '2024-12-05 05:43:05', '2024-12-06 07:43:05'), 
+(3, 2, 'Completed', '2025-02-17 22:43:05', '2025-02-18 10:43:05', 360.00, '2025-02-16 22:43:05', '2025-02-18 10:43:05'), 
+(2, 2, 'Completed', '2025-02-17 22:43:05', '2025-02-18 07:43:05', 360.00, '2025-02-16 22:43:05', '2025-02-18 07:43:05'), 
+(3, 3, 'Pending', '2025-03-15 05:43:05', '2025-03-15 10:43:05', 150.00, '2025-03-14 05:43:05', NULL), 
+(4, 4, 'Pending', '2025-03-06 05:43:05', '2025-03-06 09:43:05', 200.00, '2025-03-05 05:43:05', '2025-03-06 09:43:05');
 

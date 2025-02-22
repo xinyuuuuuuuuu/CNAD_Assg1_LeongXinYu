@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/4f6d96e165.js" crossorigin="anonymous"></script>
+
+    <title>Billing History</title>
+    <link rel="stylesheet" href="./styles/styles.css" />
+    <link rel="icon" type="image/x-icon" href="./img/ElectricR-logo.png" />
+  </head>
+  <body>
+    <header>
+      <div id="navbar-container"></div>
+    </header>
+
+    <div class="container text-center mt-5">
+      <h1>Billing History</h1>
+      <p class="mb-3">View your past and pending billing records.</p>
+
+      <!-- Paid Billings Table -->
+      <h2 class="mt-4">Paid Billings</h2>
+      <table class="table table-striped mt-3">
+        <thead>
+          <tr>
+            <th>Billing ID</th>
+            <th>Reservation ID</th>
+            <th>Total Cost ($)</th>
+            <th>Discount ($)</th>
+            <th>Final Amount ($)</th>
+            <th>Payment Method</th>
+            <th>Billing Date</th>
+          </tr>
+        </thead>
+        <tbody id="paidBillingTableBody"></tbody>
+      </table>
+
+      <!-- Unpaid Billings Table -->
+      <h2 class="mt-4">Unpaid Billings</h2>
+      <table class="table table-striped mt-3">
+        <thead>
+          <tr>
+            <th>Billing ID</th>
+            <th>Reservation ID</th>
+            <th>Total Cost ($)</th>
+            <th>Discount ($)</th>
+            <th>Final Amount ($)</th>
+            <th>Payment Status</th>
+            <th>Billing Date</th>
+          </tr>
+        </thead>
+        <tbody id="unpaidBillingTableBody"></tbody>
+      </table>
+
+      <div class="mt-4">
+        <a href="memberhome.html" class="btn btn-secondary">⬅ Back to Home</a>
+      </div>
+    </div>
+
+    <footer class="bd-footer">
+      <div id="footer-container" class="container py-4 px-4 text-body-secondary"></div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          const token = localStorage.getItem("authToken");
+          if (!token) {
+            alert("You are not logged in!");
+            window.location.href = "login.html";
+            return;
+          }
+      
+          await fetchBillings("http://localhost:8082/get-paid-billings", "paidBillingTableBody", true);
+          await fetchBillings("http://localhost:8082/get-unpaid-billings", "unpaidBillingTableBody", false);
+        });
+      
+        async function fetchBillings(apiUrl, tableBodyId, isPaid) {
+          try {
+            const response = await fetch(apiUrl, {
+              method: "GET",
+              headers: {
+                "Authorization": "Bearer " + localStorage.getItem("authToken"),
+                "Accept": "application/json",
+              },
+            });
+      
+            if (!response.ok) {
+              throw new Error("Failed to fetch billing data");
+            }
+      
+            const billings = await response.json();
+            console.log(`[DEBUG] Retrieved ${isPaid ? "paid" : "unpaid"} billings:`, billings);
+      
+            const tableBody = document.getElementById(tableBodyId);
+            tableBody.innerHTML = ""; // Clear previous data
+      
+            billings.forEach((billing) => {
+              const row = document.createElement("tr");
+      
+              // Convert UTC date to Singapore Timezone (SGT), ensuring date is valid
+              let formattedDate = "N/A";
+              if (billing.billing_date && billing.billing_date !== "0001-01-01T00:00:00Z") {
+                try {
+                  formattedDate = new Date(billing.billing_date).toLocaleString("en-SG", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                    timeZone: "Asia/Singapore",
+                  });
+                } catch (error) {
+                  console.error("[ERROR] Failed to parse date:", error);
+                }
+              }
+      
+              row.innerHTML = `
+                <td>${billing.billing_id}</td>
+                <td>${billing.reservation_id}</td>
+                <td>$${billing.billing_total.toFixed(2)}</td>
+                <td>${billing.promo_discount > 0 ? `-$${billing.promo_discount.toFixed(2)}` : "None"}</td>
+                <td>$${billing.billing_final.toFixed(2)}</td>
+                <td>${isPaid ? billing.payment_method || "N/A" : billing.payment_status}</td>
+                <td>${formattedDate}</td>
+              `;
+      
+              tableBody.appendChild(row);
+            });
+      
+          } catch (error) {
+            console.error(`[ERROR] Error fetching ${isPaid ? "paid" : "unpaid"} billings:`, error);
+            alert(`Error fetching ${isPaid ? "paid" : "unpaid"} billings.`);
+          }
+        }
+      </script>
+      
+  </body>
+</html>

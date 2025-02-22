@@ -20,6 +20,11 @@
 </head>
 <body>
     <div class="container text-center mt-5">
+        <!-- Back to Home Button -->
+        <div class="text-start mb-3">
+            <button class="btn btn-secondary" onclick="goBackToHome()">⬅ Back to Home</button>
+        </div>
+
         <h2>Login to ElectricR</h2>
         <form id="loginForm">
             <div class="mb-3">
@@ -36,6 +41,10 @@
     </div>
 
     <script>
+        function goBackToHome() {
+            window.location.href = "index.html"; // Change if your home page is different
+        }
+
         document.getElementById("loginForm").addEventListener("submit", async function(event) {
             event.preventDefault();
 
