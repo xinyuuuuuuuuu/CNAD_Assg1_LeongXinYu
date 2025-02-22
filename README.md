@@ -1,7 +1,7 @@
 # CNAD_Assg1_LeongXinYu
 
 1. Design considerations
-<b>1.1 Loose Coupling</b>
+<br><b>1.1 Loose Coupling</b></br>
    The services are independent, it interacts through APIs, minimizing dependencies on one another.
 
 1.2 Security
